@@ -58,7 +58,13 @@
 #define VK_USE_PLATFORM_WIN32_KHR
 #endif
 #define VK_NO_PROTOTYPES
-#include <vulkan.h>
+#include <vulkan/vulkan.h>
+
+#ifdef Q_OS_LINUX
+#include <QX11Info>
+#include <vulkan/vulkan_xcb.h>
+#include <vulkan/vk_icd.h>
+#endif
 
 class VulkanRenderer
 {

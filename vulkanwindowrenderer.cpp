@@ -52,11 +52,16 @@
 #include <QWindow>
 #include <QElapsedTimer>
 #include <QCoreApplication>
+#include <QVulkanInstance>
+
+const uint32_t VulkanWindowRenderer::REQUESTED_SWAPCHAIN_BUFFERS;
+const uint32_t VulkanWindowRenderer::MAX_SWAPCHAIN_BUFFERS;
+const uint32_t VulkanWindowRenderer::FRAMES_IN_FLIGHT;
 
 VulkanWindowRenderer::VulkanWindowRenderer(QWindow *window, Flags flags)
     : VulkanRenderer(flags),
       m_window(window),
-      m_vulkanLib(QStringLiteral("vulkan-1"))
+      m_vulkanLib(QStringLiteral("vulkan"))
 {
     if (!m_vulkanLib.load())
         qFatal("Failed to load vulkan-1");
@@ -277,6 +282,19 @@ void VulkanWindowRenderer::createSurface()
     surfaceInfo.hinstance = GetModuleHandle(nullptr);
     surfaceInfo.hwnd = HWND(m_window->winId());
     VkResult err = vkCreateWin32SurfaceKHR(m_vkInst, &surfaceInfo, nullptr, &m_surface);
+    if (err != VK_SUCCESS)
+        qFatal("Failed to create Win32 surface: %d", err);
+#else
+    vkCreateXcbSurfaceKHR = reinterpret_cast<PFN_vkCreateXcbSurfaceKHR>(vkGetInstanceProcAddr(m_vkInst, "vkCreateXcbSurfaceKHR"));
+    Q_ASSERT(vkCreateXcbSurfaceKHR);
+    vkGetPhysicalDeviceXcbPresentationSupportKHR = reinterpret_cast<PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR>(vkGetInstanceProcAddr(m_vkInst, "vkGetPhysicalDeviceXcbPresentationSupportKHR"));
+    Q_ASSERT(vkGetPhysicalDeviceXcbPresentationSupportKHR);
+
+    VkXcbSurfaceCreateInfoKHR surfaceInfo{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
+    surfaceInfo.sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR;
+    surfaceInfo.connection = QX11Info::connection();
+    surfaceInfo.window = static_cast<quint32>(QX11Info::appRootWindow(QX11Info::appScreen()));
+    VkResult err = vkCreateXcbSurfaceKHR(m_vkInst, &surfaceInfo, nullptr, &m_surface);
     if (err != VK_SUCCESS)
         qFatal("Failed to create Win32 surface: %d", err);
 #endif

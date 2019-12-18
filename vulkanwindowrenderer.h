@@ -110,6 +110,9 @@ private:
 #ifdef Q_OS_WIN
     PFN_vkCreateWin32SurfaceKHR vkCreateWin32SurfaceKHR;
     PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR vkGetPhysicalDeviceWin32PresentationSupportKHR;
+#else
+    PFN_vkCreateXcbSurfaceKHR vkCreateXcbSurfaceKHR;
+    PFN_vkGetPhysicalDeviceXcbPresentationSupportKHR vkGetPhysicalDeviceXcbPresentationSupportKHR;
 #endif
 
     PFN_vkDestroySurfaceKHR vkDestroySurfaceKHR;

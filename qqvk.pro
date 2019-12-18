@@ -1,5 +1,7 @@
 TEMPLATE = app
-QT += quick
+QT += quick x11extras
+
+DEFINES += VK_USE_PLATFORM_XCB_KHR
 
 SOURCES = main.cpp \
           vulkanrenderer.cpp \

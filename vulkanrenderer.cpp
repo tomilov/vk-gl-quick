@@ -107,7 +107,8 @@ void VulkanRenderer::createDeviceAndSurface()
                 enabledExtensions.append(strdup(p.extensionName));
                 m_hasDebug = true;
             } else if (!strcmp(p.extensionName, "VK_KHR_surface")
-                       || !strcmp(p.extensionName, "VK_KHR_win32_surface"))
+                       || !strcmp(p.extensionName, "VK_KHR_win32_surface")
+                       || !strcmp(p.extensionName, "VK_KHR_xcb_surface"))
             {
                 enabledExtensions.append(strdup(p.extensionName));
             }
